@@ -18,8 +18,12 @@ const router = createRouter({
       name: "Debe-pagos",
       component: () => import("../modules/Home/Debe-deudas.vue"),
     },
-
-    
+    {
+      path: "/portal",
+      name: "Portal",
+      component: () => import("../modules/portal/portal.vue"),
+      meta: { noLayout: true }
+    },
   ],
 });
 

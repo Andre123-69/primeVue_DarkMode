@@ -1,5 +1,5 @@
 <template >
-    <div class="card">
+    <div class="card" v-animateonscroll="{ enterClass: 'animate-enter fade-in-10 animate-duration-1500' }">
         <div class="relative flex justify-center mb-5">
             <!-- imagen de fondo -->
            <!--  <img src="../../assets/img/fondo-awa.jpg" class=""   /> -->
@@ -56,6 +56,13 @@ const onFormSubmit = ({ valid }) => {
   }
 };
 </script>
-<style >
-    
+<style scoped>
+  .fade-enter-active, .fade-leave-active {
+  transition: opacity 1.5s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
 </style>

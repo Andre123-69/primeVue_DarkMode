@@ -15,7 +15,7 @@
         <form @submit.prevent="enviarItem">
           <div class="grid">
             <!-- Primera fila -->
-            <div class="flex col-12 md:col-6">
+            <div class=" col-12 md:col-6">
               <div class="field ">
                 <label for="item_type_id" class="font-semibold text-900">
                   Tipo de Item <span class="text-red-500">*</span>
@@ -25,7 +25,7 @@
             </div>
 
             <div class="col-12 md:col-6 ">
-              <div class="field ">
+              <div class="field ">  
                 <label for="internal_id" class="font-semibold text-900">
                   ID Interno <span class="text-red-500">*</span>
                 </label>
@@ -110,15 +110,15 @@
             <div class="col-12">
               <div class="field">
                 <label class="block mb-3 font-semibold text-900">Configuraciones Tributarias</label>
-                <div class="flex flex-wrap gap-4">
+                <div class="gap-4">
                   <div class="field-checkbox">
                     <Checkbox id="has_igv" v-model="item.has_igv" :binary="true" />
-                    <label for="has_igv" class="ml-2">Tiene IGV</label>
+                    <label for="has_igv" class="">Tiene IGV</label>
                   </div>
 
                   <div class="field-checkbox">
                     <Checkbox id="has_isc" v-model="item.has_isc" :binary="true" />
-                    <label for="has_isc" class="ml-2">Tiene ISC</label>
+                    <label for="has_isc" class="">Tiene ISC</label>
                   </div>
 
                   <div class="field-checkbox">
@@ -499,7 +499,7 @@ export default {
 
 <style scoped>
 .item-form-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -570,7 +570,6 @@ export default {
 /* Field spacing */
 .field {
   margin-bottom: 1.5rem;
-  
 }
 
 .field label {
