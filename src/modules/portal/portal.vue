@@ -1,56 +1,68 @@
 <template>
   <div class="portal-container">
-    <!-- Fondo de imagen -->
+    <!-- Fondo de imagen con animación de carga suave -->
     <div class="background-image">
-      <img src="../../assets/img/awa.jpg" alt="Fondo AWA" class="object-cover w-full h-full" />
+      <img src="@/assets/img/awa2.jpg" alt="Fondo AWA"
+        class="object-cover w-full h-full transition-opacity duration-1000 opacity-0" @load="handleImageLoad" />
     </div>
 
     <!-- Contenido sobre el fondo -->
     <div class="content-overlay">
       <!-- Logo -->
       <div class="logo-container">
-        <img src="../../assets/img/logo-awa.png" type="image/x-icon" class="h-20 w-30" alt="Logo AWA" />
+        <img src="@/assets/img/logo-awa.png" type="image/x-icon" class="h-50 w-60" alt="Logo AWA" />
       </div>
 
       <!-- Títulos -->
       <div class="mb-6 text-center">
         <h3 class="mb-2 text-2xl font-bold text-white">Bienvenido al portal</h3>
-        <h3 class="text-xl text-white">Consulta tu deuda</h3>
+        <h3 class="text-xl text-white">Consulta tu d uda</h3>
       </div>
 
       <!-- Formulario con contenedor transparente difuminado -->
-      <div class="flex justify-center">
+      <div class="flex justify-center" v-motion-slide-visible-once-bottom>
         <div class="blurred-container">
           <Form :resolver="resolver" @submit="onFormSubmit" class="flex flex-col w-full gap-4">
             <FormField v-slot="$field" name="username" initialValue="" class="flex flex-col gap-1">
               <label for="dni" class="mb-1 font-semibold text-white">Ingrese su Dni</label>
-              <InputText type="text" placeholder="dni" class="w-full" />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
+              <InputText v-bind="$field.props" type="text" placeholder="dni" class="w-full" />
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}
+              </Message>
             </FormField>
-            <RouterLink to="/debe-pagos">
-              <Button 
-                type="submit" 
-                severity="secondary" 
-                label="Consultar"      
-                class="w-full"
-              />
-            </RouterLink>
+            <Button type="submit" severity="secondary" :label="isLoading ? 'Consultando...' : 'Consultar'"
+              class="w-full" :disabled="isLoading" />
           </Form>
+
         </div>
       </div>
     </div>
-    
+
     <Toast />
   </div>
 </template>
 
 <script setup>
 import { reactive } from 'vue';
+import { watch, ref, getCurrentInstance } from 'vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute(); // ruta actual
+const router = useRouter(); // router para navegación
+const app = getCurrentInstance().appContext.app;
+
+const isNoLayoutRoute = ref(route.meta.noLayout);
+const isLoading = ref(false);
+
+// Observa cambios en la ruta para actualizar isNoLayoutRoute
+watch(route, (newRoute) => {
+  isNoLayoutRoute.value = newRoute.meta.noLayout;
+});
 
 const toast = useToast();
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const resolver = zodResolver(
   z.object({
@@ -58,9 +70,87 @@ const resolver = zodResolver(
   })
 );
 
-const onFormSubmit = ({ valid }) => {
+const handleImageLoad = (event) => {
+  event.target.classList.remove('opacity-0');
+  event.target.classList.add('opacity-100');
+};
+
+const onFormSubmit = async ({ valid, values }) => {
+  console.log('Form submitted with values:', values);
+
   if (valid) {
-    toast.add({ severity: 'success', summary: 'Dni ingresado correctamente', life: 3000 });
+    isLoading.value = true;
+    const dni = values.username;
+
+    try {
+      const response = await fetch(`${apiUrl}system-dni/search/?doc_number=${dni}`);
+
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Datos recibidos:', data);
+
+      // ESTRUCTURA REAL: data es un array, necesitamos el primer elemento
+      // data.data[0].partner en lugar de data.data.partner
+      if (data.data && data.data.length > 0 && data.data[0].partner) {
+        toast.add({
+          severity: 'success',
+          summary: 'DNI encontrado correctamente',
+          life: 3000
+        });
+
+        app.config.globalProperties.$appState.dniData = data;
+        router.push('/debe-pagos');
+
+      } else {
+        toast.add({
+          severity: 'error',
+          summary: 'DNI no encontrado en el sistema',
+          life: 3000
+        });
+      }
+
+    } catch (error) {
+      console.error('Error completo:', error);
+      toast.add({
+        severity: 'error',
+        summary: 'Error de conexión con el servidor',
+        detail: error.message,
+        life: 3000
+      });
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Por favor ingrese un DNI válido',
+      life: 3000
+    });
+  }
+};
+
+//  traer datos del servidor para validar el DNI
+const fetchDniValidation = async (dni) => {
+  try {
+    const response = await fetch(`${apiUrl}system-dni/search/?doc_number=${dni}`);
+
+    if (!response.ok) {
+      console.error('Error HTTP:', response.status, response.statusText);
+      return false;
+    }
+
+    const data = await response.json();
+    console.log('Respuesta completa del servidor:', data);
+
+    // CORRECCIÓN: Verificar array y primer elemento
+    return data.data && data.data.length > 0 && data.data[0].partner ? true : false;
+
+  } catch (error) {
+    console.error('Error fetching DNI validation:', error);
+    return false;
   }
 };
 </script>
@@ -71,6 +161,9 @@ const onFormSubmit = ({ valid }) => {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  /*    considera agregar un color de fondo de respaldo cuando la imagen no cargue. */
+  background-color: #000;
+
 }
 
 .background-image {
@@ -86,6 +179,7 @@ const onFormSubmit = ({ valid }) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 1s ease-in-out;
 }
 
 .content-overlay {
@@ -109,11 +203,17 @@ const onFormSubmit = ({ valid }) => {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(131, 3, 3, 0.1);
 }
 
 .text-white {
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+
+}
+
+/* color del contorno de la caja de texto */
+.InputText {
+  border-color: aqua;
 }
 </style>

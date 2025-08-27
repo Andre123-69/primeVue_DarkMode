@@ -6,23 +6,24 @@ const router = createRouter({
     {
       path: "/home",
       name: "Home",
-      component: () => import("../modules/Home/Home.vue"),
+      component: () => import("@/modules/Home/Home.vue"),
     },
     {
       path: "/productos",
       name: "Productos",
-      component: () => import("../modules/Productos/Productos.vue"),
+      component: () => import("@/modules/Productos/Productos.vue"),
     },
     {
       path: "/debe-pagos",
       name: "Debe-pagos",
-      component: () => import("../modules/Home/Debe-deudas.vue"),
+      component: () => import("@/modules/portal/Pagos-Deudas/Debe-deudas.vue"),
     },
     {
       path: "/portal",
       name: "Portal",
-      component: () => import("../modules/portal/portal.vue"),
+      component: () => import("@/modules/portal/portal.vue"),
       meta: { noLayout: true }
+
     },
   ],
 });

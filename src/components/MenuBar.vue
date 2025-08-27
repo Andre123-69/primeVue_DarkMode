@@ -1,5 +1,5 @@
 <template>
-    <div class="card sidebar">
+    <div class="card sidebar" v-motion-fade-visible-once>
         <Menubar :model="items">
             <template #start>
                 <img src="@/assets/img/logo-awa.png" alt="Logo" class="h-8">
@@ -26,6 +26,7 @@
             </template>
             <template #end>
                 <div class="flex items-center gap-2">
+                    <ThemeSwitcher />
                     <InputText placeholder="Search" type="text" class="w-32 sm:w-auto" />
                     <Avatar image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png" shape="circle" />
                 </div>
@@ -36,6 +37,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
+import ThemeSwitcher from './ThemeSwitcher.vue';
 
 const items = ref([
     {
@@ -51,6 +53,7 @@ const items = ref([
     {
         label: 'Projects',
         icon: 'pi pi-search',
+
         badge: 2,
         items: [
             {

@@ -2,7 +2,6 @@
     <main-view-product></main-view-product>
     <!-- <Toast /> -->
 
-    
 </template>
 
 <script setup>
@@ -13,7 +12,6 @@ import MainViewProduct from './views/MainViewProduct.vue';
 body {
     width: 100%;
     height: 100vh;
-    overflow: hidden;
 
 }
 </style>

@@ -13,9 +13,12 @@ import App from "./App.vue";
 import AppState from './plugins/appState.js';
 import ThemeSwitcher from './components/ThemeSwitcher.vue';
 import Noir from './presets/Noir.js';
+import { MotionPlugin } from '@vueuse/motion'
+
 
 
 const app = createApp(App);
+app.use(MotionPlugin)
 
 app.use(PrimeVue, {
     theme: {
